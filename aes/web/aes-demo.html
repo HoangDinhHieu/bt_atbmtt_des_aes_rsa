@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Demo AES - HTML/CSS/JS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+  textarea, input { width: 100%; padding: 8px; margin: 6px 0; box-sizing: border-box; }
+  button { padding: 8px 16px; margin: 6px 4px 6px 0; cursor: pointer; }
+  #result { background: #f4f4f4; padding: 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>Demo mã hoá / giải mã AES (CryptoJS)</h1>
+
+<label>Khoá (secret key):</label>
+<input id="key" value="matkhaubimatabc">
+
+<label>Bản rõ:</label>
+<textarea id="plaintext" rows="3">AN TOAN BAO MAT THONG TIN</textarea>
+
+<button onclick="maHoa()">Mã hoá</button>
+<button onclick="giaiMa()">Giải mã</button>
+
+<h3>Kết quả:</h3>
+<div id="result"></div>
+
+<script>
+let banMaHienTai = "";
+
+function maHoa() {
+  const key = document.getElementById('key').value;
+  const plaintext = document.getElementById('plaintext').value;
+  const t0 = performance.now();
+  const encrypted = CryptoJS.AES.encrypt(plaintext, key).toString();
+  const t1 = performance.now();
+  banMaHienTai = encrypted;
+  document.getElementById('result').innerText =
+    "Ban ma: " + encrypted + "\n" +
+    "Thoi gian ma hoa: " + (t1 - t0).toFixed(3) + " ms";
+}
+
+function giaiMa() {
+  const key = document.getElementById('key').value;
+  if (!banMaHienTai) {
+    document.getElementById('result').innerText = "Chua co ban ma, hay bam Ma hoa truoc.";
+    return;
+  }
+  const t0 = performance.now();
+  const bytes = CryptoJS.AES.decrypt(banMaHienTai, key);
+  const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+  const t1 = performance.now();
+  document.getElementById('result').innerText =
+    "Ban ro sau giai ma: " + decrypted + "\n" +
+    "Thoi gian giai ma: " + (t1 - t0).toFixed(3) + " ms";
+}
+</script>
+</body>
+</html>
+
