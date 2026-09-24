@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Demo RSA - HTML/CSS/JS</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+  input { width: 100%; padding: 8px; margin: 6px 0; box-sizing: border-box; }
+  button { padding: 8px 16px; margin: 6px 4px 6px 0; cursor: pointer; }
+  #result { background: #f4f4f4; padding: 10px; border-radius: 6px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Demo RSA (minh hoạ, số nhỏ)</h1>
+<p><em>Lưu ý: dùng số nguyên tố nhỏ để minh hoạ nguyên lý, RSA thật dùng số hàng trăm chữ số.</em></p>
+
+<label>Số nguyên tố p:</label>
+<input id="p" value="61">
+<label>Số nguyên tố q:</label>
+<input id="q" value="53">
+<label>Số công khai e (mặc định 17):</label>
+<input id="e" value="17">
+
+<button onclick="sinhKhoa()">Sinh cặp khoá</button>
+
+<label>Bản rõ (dạng số nguyên, nhỏ hơn n):</label>
+<input id="plaintext" value="65">
+
+<button onclick="maHoa()">Mã hoá</button>
+<button onclick="giaiMa()">Giải mã</button>
+
+<h3>Kết quả:</h3>
+<div id="result"></div>
+
+<script>
+let n, phi, e, d, ciphertext;
+
+function gcd(a, b) { return b === 0n ? a : gcd(b, a % b); }
+
+function modinv(e, phi) {
+  let a = e, b = phi, x0 = 0n, x1 = 1n;
+  while (a > 1n) {
+    let q = a / b;
+    [a, b] = [b, a % b];
+    [x0, x1] = [x1 - q * x0, x0];
+  }
+  if (x1 < 0n) x1 += phi;
+  return x1;
+}
+
+function modpow(base, exp, mod) {
+  let result = 1n;
+  base = base % mod;
+  while (exp > 0n) {
+    if (exp & 1n) result = (result * base) % mod;
+    exp >>= 1n;
+    base = (base * base) % mod;
+  }
+  return result;
+}
+
+function sinhKhoa() {
+  const p = BigInt(document.getElementById('p').value);
+  const q = BigInt(document.getElementById('q').value);
+  e = BigInt(document.getElementById('e').value);
+  n = p * q;
+  phi = (p - 1n) * (q - 1n);
+  d = modinv(e, phi);
+  document.getElementById('result').innerText =
+    `n = ${n}\nphi(n) = ${phi}\nKhoá công khai (e,n) = (${e},${n})\nKhoá bí mật (d,n) = (${d},${n})`;
+}
+
+function maHoa() {
+  const M = BigInt(document.getElementById('plaintext').value);
+  const t0 = performance.now();
+  ciphertext = modpow(M, e, n);
+  const t1 = performance.now();
+  document.getElementById('result').innerText =
+    `Bản mã C = ${ciphertext}\nThời gian mã hoá: ${(t1 - t0).toFixed(3)} ms`;
+}
+
+function giaiMa() {
+  const t0 = performance.now();
+  const M2 = modpow(ciphertext, d, n);
+  const t1 = performance.now();
+  document.getElementById('result').innerText =
+    `Bản rõ sau giải mã = ${M2}\nThời gian giải mã: ${(t1 - t0).toFixed(3)} ms`;
+}
+</script>
+</body>
+</html>
